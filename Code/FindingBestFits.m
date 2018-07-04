@@ -10,10 +10,16 @@ files = dir(fullfile(pathToFolder,'*.mat'));
 
 P=[];
 V=[];
+
+fitting_protocol = protocols{ 1 };
+for pr = 2 : length( protocols )
+    fitting_protocol = [ fitting_protocol '_' protocols{ pr } ];
+end
+
 for i = 1:numel(files)
     
     
-    k = regexp(files(i).name,['FullGlobalSearchVals_',exp_ref,'_',model,'_',protocol{1}]);
+    k = regexp(files(i).name,['FullGlobalSearchVals_',exp_ref,'_',model,'_',fitting_protocol]);
     if k>=1
         V=[V;importdata(files(i).name)];
         
