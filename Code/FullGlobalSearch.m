@@ -1,4 +1,4 @@
-function xvec=FullGlobalSearch(seed,exp_ref)
+function xvec=FullGlobalSearch(seed,exp_ref, protocol)
 % Script which runs CMA-ES algorithm to determine best starting points for MCMC.
 % Algorithm is repeated 25 times as indicated below so that different areas of
 % parameter space are explored. We are satisfied that the best points of parameter
@@ -8,7 +8,7 @@ function xvec=FullGlobalSearch(seed,exp_ref)
 % parameter space with MCMC.
 
 model = 'hh';
-protocol = {'sine_wave'};
+%protocol = {'sine_wave', 'ap' };
 
 % assigns temperature according to experiment
 if strcmp(exp_ref,'16708016')==1
@@ -60,23 +60,30 @@ end
 
 % Imports protocol
 cd ../Protocols/
-V = importdata([protocol{1},'_protocol.mat']);
-
+for prot = 1 : length( protocol )
+    V{prot} = importdata([protocol{prot},'_protocol.mat']);
+    figure;plot(V{prot})
+end
 cd ..
 % Imports experimental data
 cd ExperimentalData/
 
 cd(num2str(exp_ref))
-D= importdata([protocol{1},'_',exp_ref,'_dofetilide_subtracted_leak_subtracted.mat']);
+
+noise = zeros( length( protocol ) );
+for  prot = 1 : length(protocol)
+    
+    D{prot} = importdata([protocol{prot},'_',exp_ref,'_dofetilide_subtracted_leak_subtracted.mat']);
+    % Estimates noise from first 200 ms of experimental data - in this section the holding potential is at -80 mV
+    % and so the channel would be expected to be closed with no current flowing.
+    noise( prot ) = std(D{prot}(1:2000));
+    figure; plot( D{prot} )
+end
 
 cd ..
 cd ..
 cd Code
-% Estimates noise from first 200 ms of experimental data - in this section the holding potential is at -80 mV
-% and so the channel would be expected to be closed with no current flowing.
-noise = std(D(1:2000));
-
-rand('seed',seed)
+rand('seed',seed);
 
 opts = cmaes;
 opts.Seed = seed;
@@ -128,12 +135,17 @@ for m = 1:25
     cd ..
     cd CMAESFullSearchResults
     
-    filename1 = ['FullGlobalSearchParams_',exp_ref,'_',model,'_',protocol{1},'_protocol_',num2str(seed),'.mat'];
-    filename2 = ['FullGlobalSearchVals_',exp_ref,'_',model,'_',protocol{1},'_protocol_',num2str(seed),'.mat'];
+    protocol_string = [ ];
+    for  prot = 1 : length( protocol )
+        protocol_string = [ protocol_string, protocol{ prot } '_' ];
+    end
+    protocol_string = [ protocol_string 'protocol' ];
+    
+    filename1 = ['FullGlobalSearchParams_',exp_ref,'_',model,'_',protocol_string,'_',num2str(seed),'.mat'];
+    filename2 = ['FullGlobalSearchVals_',exp_ref,'_',model,'_',protocol_string,'_',num2str(seed),'.mat'];
     
     save(filename1,'xvec');
     save(filename2,'xval');
     cd ..
-cd Code
+    cd Code
 end
-

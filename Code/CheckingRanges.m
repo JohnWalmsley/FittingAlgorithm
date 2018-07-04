@@ -21,18 +21,3 @@ if strcmp(model,'hh')==1
     r = max([alpha_1,alpha_2,beta_1,beta_2]);
     
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

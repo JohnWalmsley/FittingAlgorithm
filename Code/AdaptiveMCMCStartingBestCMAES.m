@@ -1,10 +1,10 @@
-function AdaptiveMCMCStartingBestCMAES(seed,exp_ref)
+function AdaptiveMCMCStartingBestCMAES(seed,exp_ref, protocol )
 % Adaptive MCMC algorithm used to generate MCMC chains.
 % The algorithm uses the maximum likelihood parameter set identified by the CMA-ES
 % algorithm (which we ensure has consistently identified the maximum likelihood
 % region of parameter space prior to running MCMC chain).
 model = 'hh';
-protocols = {'sine_wave'};
+%protocol = {'sine_wave', 'ap' };
 %Retrieves correct temperature for experiment exp_ref
 if strcmp(exp_ref,'16708016')==1
     
@@ -54,26 +54,37 @@ end
 
 % Import protocol and experimental data
 
+% Imports protocol
 cd ../Protocols/
-V = importdata([protocols{1},'_protocol.mat']);
+for prot = 1 : length( protocol )
+    V{prot} = importdata([protocol{prot},'_protocol.mat']);
+end
+
 cd ..
-cd ExperimentalData
-cd(exp_ref)
+% Imports experimental data
+cd ExperimentalData/
 
-D= importdata([protocols{1},'_',exp_ref,'_dofetilide_subtracted_leak_subtracted.mat']);
+cd(num2str(exp_ref))
 
+noise = zeros( length( protocol ) );
+for  prot = 1 : length(protocol)
+    
+    D{prot} = importdata([protocol{prot},'_',exp_ref,'_dofetilide_subtracted_leak_subtracted.mat']);
+    % Estimates noise from first 200 ms of experimental data - in this section the holding potential is at -80 mV
+    % and so the channel would be expected to be closed with no current flowing.
+    noise( prot ) = std(D{prot}(1:2000));
+end
 cd ..
 cd ..
 cd Code
 % Standard deviation calculated from initial section of protocol which is held -80mV (and the current would be expected to be 0)
-noise = std(D(1:2000));
 rand('seed',seed);
 
 % retrieve upper and lower bounds for parameters according to priors
 [zz,LB,UB]=sampling_prior(model,exp_ref);
 
 % Identify maximum likelihood parameters (in practice minimising negative log-likelihood) from CMA-ES algorithm results
-[P_asc,V_asc] = FindingBestFits(model,protocols,exp_ref);
+[P_asc,V_asc] = FindingBestFits(model,protocol,exp_ref);
 
 k = P_asc(1,:);
 
@@ -85,7 +96,7 @@ k=X0;
 % Calculate initial log likelihood using each protocol
 % As in parameter search using CMA-ES, in the objective function we exclude the capacitive spikes to ensure
 % these don't adversely affect the fitting to the sine wave current
-L_init = objective_without_capacitance_mcmc((X0)',D,V,noise,model,protocols{1},model_type,temperature)
+L_init = objective_without_capacitance_mcmc((X0)',D,V,noise,model,protocol,model_type,temperature)
 
 L_can = (L_init);
 
@@ -121,9 +132,11 @@ for j = 1:1:250000
     k2= mvnrnd(Y0',(s.*cov_m));
     
     % Check the conditions of the prior are satisfied - if they are then Q=1 is returned and MCMC continues, if not then Q=0 is returned and the parameter set is immediately assigned a probability of 0 (without simulating) and the previous parameter set is recored in the MCMC chain and a new proposal generated.
-    
-    r = CheckingRanges(k2,model,V);
-    
+    r_vec = zeros(size(V));
+    for prot = 1 : length( V )
+        r_vec( prot ) = CheckingRanges( k2, model, V{ prot } );
+    end
+    r = max(r_vec);
     
     if r>1000||r<1.67e-5||any(k2>UB)==1||any(k2<LB)==1
         Q=0;
@@ -139,7 +152,7 @@ for j = 1:1:250000
         % Current simulated using proposed parameter set and log likelihood calculated for each protocol
         
         
-        L_can_21 = objective_without_capacitance_mcmc((k2)',D,V,noise,model,protocols{1},model_type,temperature);
+        L_can_21 = objective_without_capacitance_mcmc((k2)',D,V,noise,model,protocol,model_type,temperature);
         
         
         L_can_2=(L_can_21);
@@ -182,16 +195,20 @@ for j = 1:1:250000
     
     s=exp(d);
     
-    
+    protocol_string = [ ];
+    for  prot = 1 : length( protocol )
+        protocol_string = [ protocol_string, protocol{ prot } '_' ];
+    end
+    protocol_string = [ protocol_string 'protocol' ];
     
     % The MCMC Chain, log-likelihoods and acceptance rates written to file
     if mod(j,1000)==0
         
         cd ../MCMCResults
         
-        filename1=['MCMCChain_',exp_ref,'_',model,'_',protocols{1},'_',num2str(seed),'.mat'];
-        filename2=['MCMCLikelihood_',exp_ref,'_',model,'_',protocols{1},'_',num2str(seed),'.mat'];
-        filename3=['MCMCAcceptance_',exp_ref,'_',model,'_',protocols{1},'_',num2str(seed),'.mat'];
+        filename1=['MCMCChain_',exp_ref,'_',model,'_',protocol_string,'_',num2str(seed),'.mat'];
+        filename2=['MCMCLikelihood_',exp_ref,'_',model,'_',protocol_string,'_',num2str(seed),'.mat'];
+        filename3=['MCMCAcceptance_',exp_ref,'_',model,'_',protocol_string,'_',num2str(seed),'.mat'];
         save(filename1,'MM');
         save(filename2,'U');
         save(filename3,'R');

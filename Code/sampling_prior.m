@@ -11,7 +11,6 @@ end
 if strcmp(exp_ref,'16704007')==1
     lower_conductance = 0.0886;
 end
-
 if strcmp(exp_ref,'16707014')==1
     lower_conductance = 0.0203;
 end
@@ -53,4 +52,3 @@ if strcmp(model,'hh')==1
     UB=[upper_alpha,upper_beta,upper_alpha,upper_beta,upper_alpha,upper_beta,upper_alpha,upper_beta,upper_conductance];
     LB =[lower_alpha,lower_beta,lower_alpha,lower_beta,lower_alpha,lower_beta,lower_alpha,lower_beta,lower_conductance];
 end
-

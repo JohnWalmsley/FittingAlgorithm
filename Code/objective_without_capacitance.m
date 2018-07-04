@@ -8,26 +8,32 @@ S=1;
 X0=10.^(X0);
 
 % Determine maximum transition rate and check conditions and either penalise likelihood (maximum transition out of required range) or simulate model
-r = CheckingRanges(X0,model,V);
+r_vec = zeros( size( V ) );
 
-if r>1000||r<1.67e-5
-    
+for prot = 1 : length( V )
+    r_vec( prot ) = CheckingRanges( X0, model, V{ prot } );
+end
+r = max(r_vec);
+if r>1000 || r<1.67e-5
     S=0;
 end
+
 L_I = -1e25;
 penal = 1e25;
 
-% If maximu transition within require range simulate model and calculate log-likelihood
+% If maximum transition within require range simulate model and calculate log-likelihood
 if S==1
-    sig = noise;
-    [I,O]=SimulatingData(model_type,protocol{1},X0',V,temperature);
-    
-    % Calculate log likelihood first removing capactive spikes from experimental and simulation traces to ensure that these artefacts
-    % do not adversely affect fitting to the current trace.
-    J = [I(1:2499);I(2549:2999);I(3049:4999);I(5049:14999);I(15049:19999);I(20049:29999);I(30049:64999);I(65049:69999);I(70049:end)];
-    F = [D(1:2499);D(2549:2999);D(3049:4999);D(5049:14999);D(15049:19999);D(20049:29999);D(30049:64999);D(65049:69999);D(70049:end)];
-    
-    L_I =   -0.5.*length(J)*log((2.*pi).*(sig.^2))-0.5.*(1/((sig)^2))*(sum((F-J).^(2)));
+    L_I = zeros( size( protocol ) );
+    for prot = 1 : length( protocol )
+        sig = noise( prot );
+        [I,~]=SimulatingData( model_type, protocol{ prot }, X0', V{ prot }, temperature );
+        idx = GetNoSpikeIdx( protocol{ prot }, length( I ) );
+        % Calculate log likelihood first removing capactive spikes from experimental and simulation traces to ensure that these artefacts
+        % do not adversely affect fitting to the current trace.
+        J = I(idx);%[I(1:2499);I(2549:2999);I(3049:4999);I(5049:14999);I(15049:19999);I(20049:29999);I(30049:64999);I(65049:69999);I(70049:end)];
+        F = D{prot}(idx);%[D(1:2499);D(2549:2999);D(3049:4999);D(5049:14999);D(15049:19999);D(20049:29999);D(30049:64999);D(65049:69999);D(70049:end)];
+        L_I( prot ) = -0.5.*length(J)*log((2.*pi).*(sig.^2))-0.5.*(1/((sig)^2))*(sum((F-J).^(2)));
+    end
     
 end
 % Penalties are imposed so that points further away from the prior are more heavily weighted, to aid the search path back to satisfy the required conditions
@@ -59,4 +65,3 @@ end
 % negative log likelihood used as output of objective function to be minimised
 
 Idiff=-(sum(L_I));
-
