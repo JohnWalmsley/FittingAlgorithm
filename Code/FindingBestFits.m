@@ -1,4 +1,4 @@
-function [P_asc,V_asc] = FindingBestFits(model,protocol,exp_ref)
+function [P_asc,V_asc] = FindingBestFits(model,protocols,exp_ref)
 % Function imports CMA-ES search results (negative log-likelihood values and corresponding parameters) and for relevant model/protocol/exp_ref combination
 % sorts the results into ascending order (we aim to identify the most negative log-likelihood value which corresponds to the top parameter set in the sorted matrix)
 
