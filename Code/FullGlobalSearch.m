@@ -62,7 +62,6 @@ end
 cd ../Protocols/
 for prot = 1 : length( protocol )
     V{prot} = importdata([protocol{prot},'_protocol.mat']);
-    figure;plot(V{prot})
 end
 cd ..
 % Imports experimental data
@@ -77,7 +76,7 @@ for  prot = 1 : length(protocol)
     % Estimates noise from first 200 ms of experimental data - in this section the holding potential is at -80 mV
     % and so the channel would be expected to be closed with no current flowing.
     noise( prot ) = std(D{prot}(1:2000));
-    figure; plot( D{prot} )
+
 end
 
 cd ..
