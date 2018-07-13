@@ -17,14 +17,11 @@ for pr = 2 : length( protocols )
 end
 
 for i = 1:numel(files)
-    
-    
     k = regexp(files(i).name,['FullGlobalSearchVals_',exp_ref,'_',model,'_',fitting_protocol]);
     if k>=1
         V=[V;importdata(files(i).name)];
         
         S=files(i).name;
-        
         mS = strrep(S, 'Vals', 'Params');
         q=exist('P');
         if q==1
