@@ -1,9 +1,11 @@
-function AdaptiveMCMCStartingBestCMAES(seed,exp_ref, protocol )
+function AdaptiveMCMCStartingBestCMAES(seed,exp_ref, protocol, model )
 % Adaptive MCMC algorithm used to generate MCMC chains.
 % The algorithm uses the maximum likelihood parameter set identified by the CMA-ES
 % algorithm (which we ensure has consistently identified the maximum likelihood
 % region of parameter space prior to running MCMC chain).
-model = 'hh';
+if nargin < 4
+    model = 'hh';
+end
 %protocol = {'sine_wave', 'ap' };
 %Retrieves correct temperature for experiment exp_ref
 if strcmp(exp_ref,'16708016')==1

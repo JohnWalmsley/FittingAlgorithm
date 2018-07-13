@@ -1,4 +1,4 @@
-function xvec=FullGlobalSearch(seed,exp_ref, protocol)
+function xvec=FullGlobalSearch(seed,exp_ref, protocol, model)
 % Script which runs CMA-ES algorithm to determine best starting points for MCMC.
 % Algorithm is repeated 25 times as indicated below so that different areas of
 % parameter space are explored. We are satisfied that the best points of parameter
@@ -7,7 +7,9 @@ function xvec=FullGlobalSearch(seed,exp_ref, protocol)
 % identified by CMA-ES are later confirmed to be global optima after further exploring
 % parameter space with MCMC.
 
-model = 'hh';
+if nargin < 3
+    model = 'hh';
+end
 %protocol = {'sine_wave', 'ap' };
 
 % assigns temperature according to experiment
