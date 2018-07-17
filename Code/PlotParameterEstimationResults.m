@@ -28,7 +28,7 @@ for pr = 1 : num_fit
     
     protocol = fitting_protocols{ pr };
     % Simulate data
-    [ ~, I, ~, ~, ~, ~, V, ~, time, ~ ] = CalculateVariables( protocol, exp_ref, fitting_protocols );
+    [ ~, I, ~, ~, ~, ~, V, ~, time, ~ ] = CalculateVariables( protocol, exp_ref, fitting_protocols, model );
 
     % load experimental data
     I_exp = importdata([ '../ExperimentalData/' exp_ref '/' protocol '_',exp_ref,'_dofetilide_subtracted_leak_subtracted.mat']);
@@ -51,7 +51,7 @@ end
 for pr = 1 : num_pred
     protocol = prediction_protocols{ pr };
     % Simulate data
-    [ ~, I, ~, ~, ~, ~, ~, ~, time, ~ ] = CalculateVariables( protocol, exp_ref, fitting_protocols );
+    [ ~, I, ~, ~, ~, ~, ~, ~, time, ~ ] = CalculateVariables( protocol, exp_ref, fitting_protocols, model );
     % load experimental data
     I_exp = importdata([ '../ExperimentalData/' exp_ref '/' protocol '_',exp_ref,'_dofetilide_subtracted_leak_subtracted.mat']);
         
