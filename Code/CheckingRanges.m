@@ -7,7 +7,8 @@ params=parameters;
 a=1;
 
 % Defines transition rates for model and maximum rate identified
-if strcmp(model,'hh')==1 || strcmp(model,'mh')==1 || strcmp(model,'mh2')==1
+if strcmp(model,'hh')==1 || strcmp(model,'mh')==1 || strcmp(model,'mh2')==1 ...
+    || strcmp(model,'mh3')==1 || strcmp(model,'mh4')==1 || strcmp(model,'m2h2')==1  
     for i=1:length(U)
         v=U(i);
         alpha_1(a) = params(1)*exp(params(2)*v);
