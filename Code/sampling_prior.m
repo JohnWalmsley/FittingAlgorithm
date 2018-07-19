@@ -43,8 +43,8 @@ lower_beta = 1e-7;
 
 %Inital guesses and upper and lower bounds
 
-if strcmp(model,'hh')==1 || strcmp(model,'mh')==1 || strcmp(model,'mh2')==1 ...
-    || strcmp(model,'mh3')==1 || strcmp(model,'mh4')==1 || strcmp(model,'m2h2')==1
+if strcmp(model,'hh')==1 || strcmp(model,'mh')==1 || strcmp(model,'m2h')==1 ...
+    || strcmp(model,'m3h')==1 || strcmp(model,'m4h')==1 || strcmp(model,'m2h2')==1
     X0= rand(9,1);
     X0([2,4,6,8])=(upper_beta-lower_beta).*X0([2,4,6,8])+lower_beta;
     X0([1,3,5,7])=10.^((10).*X0([1,3,5,7])+-7.*ones(length(X0([1,3,5,7])),1));
