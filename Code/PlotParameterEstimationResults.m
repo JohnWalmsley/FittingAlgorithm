@@ -8,7 +8,7 @@ if nargin == 3
 end
 seed = '30082148';
 
-data_fig = figure;
+data_fig = figure('Units','Normalized', 'OuterPosition', [ 0 0 1 1] );
 
 % Get number of protocols used in the fitting process
 num_fit = length( fitting_protocols );
@@ -69,5 +69,11 @@ for pr = 1 : num_pred
     title( protocol, 'Interpreter', 'None' )
     
 end
+
+set( gcf, 'Color', 'w' );
+set(findall( gcf, 'type', 'axes'), 'Box', 'off' );
+set(findall( gcf, 'type', 'axes'), 'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2);
+
+export_fig( data_fig, 'FittedModel.png', '-png')
 
 end
